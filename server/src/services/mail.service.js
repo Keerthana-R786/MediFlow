@@ -1,4 +1,4 @@
-const transporter = require('../config/mailer');
+const { transporter, isMailerReady, useBrevo, sendEmailViaBrevo } = require('../config/mailer');
 
 const FROM = `"MediFlow" <${process.env.SMTP_USER}>`;
 
@@ -41,6 +41,7 @@ const sendAppointmentConfirmation = async (patientUser, doctor, appointment, int
   console.log('[MAIL] Patient:', patientUser.firstName, patientUser.lastName);
   console.log('[MAIL] Doctor:', doctor.firstName, doctor.lastName);
   console.log('[MAIL] Intake Link:', intakeLink);
+  console.log('[MAIL] Using:', useBrevo ? 'Brevo API' : 'Gmail SMTP');
   
   const html = baseTemplate(`
     <h2>Appointment Confirmed</h2>
@@ -55,32 +56,59 @@ const sendAppointmentConfirmation = async (patientUser, doctor, appointment, int
     <p style="margin-top:16px;color:#94A3B8;font-size:12px;">This link expires after your appointment time.</p>
   `);
 
-  // Retry logic for email sending
-  let lastError;
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  // Use Brevo API if configured
+  if (useBrevo) {
     try {
-      console.log(`[MAIL] Attempt ${attempt}/3 to send email`);
+      console.log('[MAIL] Sending via Brevo API...');
+      const result = await sendEmailViaBrevo({
+        to: patientUser.email,
+        subject: 'Appointment Confirmed — MediFlow',
+        htmlContent: html,
+      });
+      console.log('[MAIL] ✅ Email sent successfully via Brevo. Message ID:', result.messageId);
+      return result;
+    } catch (error) {
+      console.error('[MAIL] ❌ Brevo API failed:', error.message);
+      throw error;
+    }
+  }
+
+  // Gmail SMTP fallback
+  if (!isMailerReady()) {
+    console.log('[MAIL] ⚠️ Gmail SMTP not ready - skipping email');
+    console.log('[MAIL] 📋 Email would have been sent to:', patientUser.email);
+    console.log('[MAIL] 🔗 Intake link:', intakeLink);
+    return { skipped: true, reason: 'Mailer not ready' };
+  }
+
+  // Retry logic with shorter timeouts
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      console.log(`[MAIL] Attempt ${attempt}/2 to send via Gmail SMTP`);
       const info = await transporter.sendMail({ 
         from: FROM, 
         to: patientUser.email, 
         subject: 'Appointment Confirmed — MediFlow', 
         html 
       });
-      console.log('[MAIL] ✅ Email sent successfully. Message ID:', info.messageId);
+      console.log('[MAIL] ✅ Email sent successfully via Gmail. Message ID:', info.messageId);
       return info;
     } catch (error) {
       lastError = error;
-      console.error(`[MAIL] ❌ Attempt ${attempt}/3 failed:`, error.message);
-      if (attempt < 3) {
-        // Wait before retry (exponential backoff)
-        const delay = attempt * 2000; // 2s, 4s
+      console.error(`[MAIL] ❌ Attempt ${attempt}/2 failed:`, error.message);
+      if (attempt < 2) {
+        const delay = 1000; // 1 second
         console.log(`[MAIL] Retrying in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }
   
-  console.error('[MAIL] ❌ All attempts failed. Last error:', lastError.message);
+  console.error('[MAIL] ❌ All Gmail attempts failed. Last error:', lastError.message);
+  console.log('[MAIL] 📋 Email details saved for manual follow-up:');
+  console.log('[MAIL]    To:', patientUser.email);
+  console.log('[MAIL]    Intake Link:', intakeLink);
   throw lastError;
 };
 
