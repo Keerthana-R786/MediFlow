@@ -144,44 +144,131 @@ const Queue = () => {
 
   return (
     <PageWrapper>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
         <div>
-          <h1 className="text-[20px] font-medium text-[#0F172A]">Queue</h1>
-          <p className="text-[13px] text-[#94A3B8] mt-0.5">Today's appointments</p>
+          <h1 className="text-lg sm:text-[20px] font-medium text-[#0F172A]">Queue</h1>
+          <p className="text-xs sm:text-[13px] text-[#94A3B8] mt-0.5">Today's appointments</p>
         </div>
-        <Button onClick={handleOpenModal}>
+        <Button onClick={handleOpenModal} className="w-full sm:w-auto">
           <UserPlus size={16} /> New Walk-in
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {[
           { label: 'Total Appointments', value: stats.total },
           { label: 'Checked In',         value: stats.checkedIn },
           { label: 'Remaining',          value: stats.remaining },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-white border border-[#E2E8F0] rounded-[12px] p-4">
-            <p className="text-[12px] text-[#94A3B8] mb-1">{label}</p>
-            <p className="text-[22px] font-medium text-[#0F172A]">{value}</p>
+          <div key={label} className="bg-white border border-[#E2E8F0] rounded-[12px] p-3 sm:p-4">
+            <p className="text-[10px] sm:text-[12px] text-[#94A3B8] mb-1">{label}</p>
+            <p className="text-lg sm:text-[22px] font-medium text-[#0F172A]">{value}</p>
           </div>
         ))}
       </div>
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+        <Search size={14} className="sm:w-4 sm:h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
         <input
           type="text"
           placeholder="Search patients..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full h-10 pl-10 pr-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]"
+          className="w-full h-9 sm:h-10 pl-9 sm:pl-10 pr-4 rounded-[8px] border border-[#E2E8F0] bg-white text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]"
         />
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-[#E2E8F0] rounded-[12px] overflow-hidden">
+      {/* Mobile Card View */}
+      <div className="lg:hidden space-y-3">
+        {loading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-white border border-[#E2E8F0] rounded-[12px] p-3">
+              <SkeletonRow />
+            </div>
+          ))
+        ) : filtered.length === 0 ? (
+          <EmptyState title="Queue is empty" description="No appointments scheduled for today." />
+        ) : (
+          filtered.map((appt) => {
+            const name = getPatientName(appt);
+            const patient = appt.patientId || {};
+            const age = getAge(patient.dateOfBirth);
+            const doctor = appt.doctorId || {};
+            const intake = appt.intakeSessionId;
+            const urgency = appt.patientBriefId?.urgencyLevel || intake?.urgencyLevel;
+
+            return (
+              <div key={appt._id} className="bg-white border border-[#E2E8F0] rounded-[12px] p-3">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-start gap-2 flex-1">
+                    <Avatar name={name} size="sm" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-[#0F172A]">{name}</p>
+                      {age && <p className="text-xs text-[#94A3B8]">{age}y{patient.gender ? ` · ${patient.gender}` : ''}</p>}
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0 ml-2">
+                    <p className="text-xs font-medium text-[#0F172A]">{appt.slot?.startTime}</p>
+                    <p className="text-[10px] text-[#94A3B8]">#{appt.tokenNumber}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <p className="text-[#475569]">
+                    <span className="text-[#94A3B8]">Doctor:</span> Dr. {doctor.firstName} {doctor.lastName}
+                  </p>
+                  {appt.chiefComplaint && (
+                    <p className="text-[#475569] line-clamp-2">
+                      <span className="text-[#94A3B8]">Complaint:</span> {appt.chiefComplaint}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {urgency && <Badge urgency={urgency} dot>{urgency}</Badge>}
+                  <Badge variant={intake?.status === 'completed' ? 'success' : 'warning'}>
+                    {intake?.status === 'completed' ? 'Done' : 'Pending'}
+                  </Badge>
+                </div>
+
+                <div className="flex gap-2 mt-3">
+                  {appt.status === 'scheduled' && (
+                    <>
+                      <Button size="sm" variant="secondary" onClick={() => handleCheckIn(appt._id)} className="flex-1 text-xs">
+                        Check In
+                      </Button>
+                      {intake?.status !== 'completed' && (
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          title="Copy intake link" 
+                          onClick={() => copyIntakeLink(appt._id)}
+                          className="flex-shrink-0"
+                        >
+                          <Send size={14} />
+                        </Button>
+                      )}
+                    </>
+                  )}
+                  {appt.status === 'checked-in' && (
+                    <span className="text-[10px] px-2 py-1 rounded-[4px] bg-[#E0F2FE] text-[#0284C7]">Checked In</span>
+                  )}
+                  {(appt.patientBriefId || intake?.status === 'completed') && (
+                    <Button size="sm" variant="ghost" title="View Brief" onClick={() => navigate(`/doctor/brief/${appt._id}`)}>
+                      <FileText size={14} />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white border border-[#E2E8F0] rounded-[12px] overflow-hidden">
         <table className="w-full">
           <thead className="bg-[#F8FAFC] border-b border-[#F1F5F9]">
             <tr>
@@ -293,20 +380,20 @@ const Queue = () => {
           />
           
           {/* Modal */}
-          <div className="relative bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-lg border border-white/50 animate-scale-in">
+          <div className="relative bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-lg border border-white/50 animate-scale-in max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200/50">
-              <h2 className="text-lg font-semibold text-slate-800">New Walk-in Appointment</h2>
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-200/50 sticky top-0 bg-white/95 backdrop-blur-xl">
+              <h2 className="text-base sm:text-lg font-semibold text-slate-800">New Walk-in</h2>
               <button 
                 onClick={handleCloseModal}
                 className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
               >
-                <X size={20} className="text-slate-500" />
+                <X size={18} className="sm:w-5 sm:h-5 text-slate-500" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {modalLoading ? (
                 <div className="text-center py-8">
                   <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />

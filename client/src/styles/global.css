@@ -400,6 +400,79 @@ input, textarea, select {
   .card:hover {
     transform: none;
   }
+  
+  /* Disable hover effects on mobile */
+  .card-interactive:hover {
+    transform: none;
+  }
+  
+  /* Better touch targets */
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
+  
+  /* Prevent text size adjustment on mobile */
+  body {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+}
+
+/* Mobile-specific utilities */
+@media (max-width: 640px) {
+  /* Reduce padding on small screens */
+  .page-enter {
+    animation-duration: 200ms;
+  }
+  
+  /* Stack elements vertically on mobile */
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+  
+  /* Full width on mobile */
+  .mobile-full {
+    width: 100% !important;
+  }
+  
+  /* Hide on mobile */
+  .mobile-hidden {
+    display: none !important;
+  }
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  /* Show on desktop only */
+  .desktop-only {
+    display: block;
+  }
+}
+
+/* Mobile only */
+@media (max-width: 767px) {
+  .mobile-only {
+    display: block;
+  }
+  
+  .desktop-only {
+    display: none;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects on touch devices */
+  .hover\:scale-110:hover {
+    transform: none;
+  }
+  
+  /* Larger tap targets */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 /* Dark mode support (future) */

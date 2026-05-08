@@ -69,27 +69,27 @@ const DoctorDashboard = () => {
 
   return (
     <PageWrapper>
-      <div className="mb-6">
-        <h1 className="text-[20px] font-medium text-[#0F172A]">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-lg sm:text-[20px] font-medium text-[#0F172A]">
           {format(new Date(), 'EEEE, d MMMM')}
         </h1>
-        <p className="text-[13px] text-[#94A3B8] mt-0.5">{appointments.length} patients scheduled today</p>
+        <p className="text-xs sm:text-[13px] text-[#94A3B8] mt-0.5">{appointments.length} patients scheduled today</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {[
           { label: 'Total Today',   value: stats.total,      icon: Clock },
           { label: 'Completed',     value: stats.completed,  icon: CheckCircle },
           { label: 'Remaining',     value: stats.remaining,  icon: Clock },
           { label: 'Avg. Urgency',  value: stats.avgUrgency, icon: AlertTriangle },
         ].map(({ label, value, icon: Icon }) => (
-          <div key={label} className="bg-white border border-[#E2E8F0] rounded-[12px] p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[12px] text-[#94A3B8]">{label}</span>
-              <Icon size={14} className="text-[#CBD5E1]" />
+          <div key={label} className="bg-white border border-[#E2E8F0] rounded-[12px] p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-1 sm:mb-2">
+              <span className="text-[11px] sm:text-[12px] text-[#94A3B8]">{label}</span>
+              <Icon size={12} className="sm:w-[14px] sm:h-[14px] text-[#CBD5E1]" />
             </div>
-            <p className="text-[22px] font-medium text-[#0F172A]">{value}</p>
+            <p className="text-lg sm:text-[22px] font-medium text-[#0F172A]">{value}</p>
           </div>
         ))}
       </div>
@@ -111,61 +111,125 @@ const DoctorDashboard = () => {
             return (
               <div
                 key={appt._id}
-                className={`bg-white border border-[#E2E8F0] rounded-[12px] p-4 flex items-center gap-4 ${hasUnreadBrief ? 'border-l-4 border-l-[#0EA5E9]' : ''}`}
+                className={`bg-white border border-[#E2E8F0] rounded-[12px] p-3 sm:p-4 ${hasUnreadBrief ? 'border-l-4 border-l-[#0EA5E9]' : ''}`}
               >
-                <div className="w-16 text-center flex-shrink-0">
-                  <p className="text-[13px] font-medium text-[#0F172A]">{appt.slot?.startTime}</p>
-                  <p className="text-[11px] text-[#94A3B8]">#{appt.tokenNumber}</p>
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <p className="text-[14px] font-medium text-[#0F172A]">{name}</p>
-                    {age && <span className="text-[12px] text-[#94A3B8]">{age}y</span>}
+                {/* Mobile Layout */}
+                <div className="lg:hidden space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-medium text-[#0F172A]">{name}</p>
+                        {age && <span className="text-xs text-[#94A3B8]">{age}y</span>}
+                      </div>
+                      <p className="text-xs text-[#475569] line-clamp-2">{appt.chiefComplaint || 'No complaint specified'}</p>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-2">
+                      <p className="text-xs font-medium text-[#0F172A]">{appt.slot?.startTime}</p>
+                      <p className="text-[10px] text-[#94A3B8]">#{appt.tokenNumber}</p>
+                    </div>
                   </div>
-                  <p className="text-[13px] text-[#475569] truncate">{appt.chiefComplaint || 'No complaint specified'}</p>
+                  
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-[4px] font-medium ${statusColors[appt.status] || statusColors.scheduled}`}>
+                      {appt.status}
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-[4px] bg-[#F1F5F9] text-[#475569]">
+                      {typeLabels[appt.type] || appt.type}
+                    </span>
+                    {urgency && <Badge urgency={urgency} dot>{urgency}</Badge>}
+                    <span className={`text-[10px] px-2 py-0.5 rounded-[4px] ${intake?.status === 'completed' ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEF9C3] text-[#854D0E]'}`}>
+                      {intake?.status === 'completed' ? 'Intake done' : 'Pending'}
+                    </span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    {appt.status === 'checked-in' && (
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => handleStatusUpdate(appt._id, 'in-progress')}
+                        className="flex-1 text-xs"
+                      >
+                        Start
+                      </Button>
+                    )}
+                    {appt.status === 'in-progress' && (
+                      <Button
+                        size="sm"
+                        variant="success"
+                        onClick={() => handleStatusUpdate(appt._id, 'completed')}
+                        className="flex-1 text-xs"
+                      >
+                        Complete
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant={hasUnreadBrief ? 'primary' : 'secondary'}
+                      onClick={() => navigate(`/doctor/brief/${appt._id}`)}
+                      className="flex-1 text-xs"
+                    >
+                      <FileText size={12} />
+                      Brief
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className={`text-[11px] px-2 py-0.5 rounded-[4px] font-medium ${statusColors[appt.status] || statusColors.scheduled}`}>
-                    {appt.status}
-                  </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-[4px] bg-[#F1F5F9] text-[#475569]">
-                    {typeLabels[appt.type] || appt.type}
-                  </span>
-                  {urgency && <Badge urgency={urgency} dot>{urgency}</Badge>}
-                  <span className={`text-[11px] px-2 py-0.5 rounded-[4px] ${intake?.status === 'completed' ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEF9C3] text-[#854D0E]'}`}>
-                    {intake?.status === 'completed' ? 'Intake done' : 'Intake pending'}
-                  </span>
-                  
-                  {/* Quick action buttons based on status */}
-                  {appt.status === 'checked-in' && (
+                {/* Desktop Layout */}
+                <div className="hidden lg:flex items-center gap-4">
+                  <div className="w-16 text-center flex-shrink-0">
+                    <p className="text-[13px] font-medium text-[#0F172A]">{appt.slot?.startTime}</p>
+                    <p className="text-[11px] text-[#94A3B8]">#{appt.tokenNumber}</p>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="text-[14px] font-medium text-[#0F172A]">{name}</p>
+                      {age && <span className="text-[12px] text-[#94A3B8]">{age}y</span>}
+                    </div>
+                    <p className="text-[13px] text-[#475569] truncate">{appt.chiefComplaint || 'No complaint specified'}</p>
+                  </div>
+
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span className={`text-[11px] px-2 py-0.5 rounded-[4px] font-medium ${statusColors[appt.status] || statusColors.scheduled}`}>
+                      {appt.status}
+                    </span>
+                    <span className="text-[11px] px-2 py-0.5 rounded-[4px] bg-[#F1F5F9] text-[#475569]">
+                      {typeLabels[appt.type] || appt.type}
+                    </span>
+                    {urgency && <Badge urgency={urgency} dot>{urgency}</Badge>}
+                    <span className={`text-[11px] px-2 py-0.5 rounded-[4px] ${intake?.status === 'completed' ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEF9C3] text-[#854D0E]'}`}>
+                      {intake?.status === 'completed' ? 'Intake done' : 'Intake pending'}
+                    </span>
+                    
+                    {appt.status === 'checked-in' && (
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => handleStatusUpdate(appt._id, 'in-progress')}
+                      >
+                        Start Consultation
+                      </Button>
+                    )}
+                    {appt.status === 'in-progress' && (
+                      <Button
+                        size="sm"
+                        variant="success"
+                        onClick={() => handleStatusUpdate(appt._id, 'completed')}
+                      >
+                        Mark Complete
+                      </Button>
+                    )}
+                    
                     <Button
                       size="sm"
-                      variant="primary"
-                      onClick={() => handleStatusUpdate(appt._id, 'in-progress')}
+                      variant={hasUnreadBrief ? 'primary' : 'secondary'}
+                      onClick={() => navigate(`/doctor/brief/${appt._id}`)}
                     >
-                      Start Consultation
+                      <FileText size={14} />
+                      View Brief
                     </Button>
-                  )}
-                  {appt.status === 'in-progress' && (
-                    <Button
-                      size="sm"
-                      variant="success"
-                      onClick={() => handleStatusUpdate(appt._id, 'completed')}
-                    >
-                      Mark Complete
-                    </Button>
-                  )}
-                  
-                  <Button
-                    size="sm"
-                    variant={hasUnreadBrief ? 'primary' : 'secondary'}
-                    onClick={() => navigate(`/doctor/brief/${appt._id}`)}
-                  >
-                    <FileText size={14} />
-                    View Brief
-                  </Button>
+                  </div>
                 </div>
               </div>
             );

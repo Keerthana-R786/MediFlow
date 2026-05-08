@@ -37,7 +37,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:flex-1 relative overflow-hidden bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-700">
         {/* Animated background elements */}
@@ -82,41 +82,41 @@ const Login = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg">
-              <Stethoscope size={20} className="text-white" />
+          <div className="lg:hidden flex items-center gap-2 mb-6 sm:mb-8">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg">
+              <Stethoscope size={18} className="sm:w-5 sm:h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-800">MediFlow</span>
+            <span className="text-lg sm:text-xl font-bold text-slate-800">MediFlow</span>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-2xl p-8 border border-slate-200/50 backdrop-blur-xl">
-            <div className="mb-8">
-              <h1 className="text-2xl font-bold text-slate-800 mb-2">Sign in to your account</h1>
-              <p className="text-slate-500">Enter your credentials to continue</p>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border border-slate-200/50 backdrop-blur-xl">
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">Sign in to your account</h1>
+              <p className="text-sm sm:text-base text-slate-500">Enter your credentials to continue</p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-slate-700">Email Address</label>
+                <label className="text-xs sm:text-sm font-medium text-slate-700">Email Address</label>
                 <input
                   type="email"
                   placeholder="you@example.com"
-                  className={`h-11 w-full px-4 rounded-xl border-2 bg-white text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.email ? 'border-red-300 focus:border-red-500' : 'border-slate-200'}`}
+                  className={`h-10 sm:h-11 w-full px-3 sm:px-4 rounded-xl border-2 bg-white text-sm sm:text-base text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.email ? 'border-red-300 focus:border-red-500' : 'border-slate-200'}`}
                   {...register('email')}
                 />
                 {errors.email && <span className="text-xs text-red-600">{errors.email.message}</span>}
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-slate-700">Password</label>
+                <label className="text-xs sm:text-sm font-medium text-slate-700">Password</label>
                 <div className="relative">
                   <input
                     type={showPass ? 'text' : 'password'}
                     placeholder="••••••••"
-                    className={`h-11 w-full px-4 pr-11 rounded-xl border-2 bg-white text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.password ? 'border-red-300 focus:border-red-500' : 'border-slate-200'}`}
+                    className={`h-10 sm:h-11 w-full px-3 sm:px-4 pr-10 sm:pr-11 rounded-xl border-2 bg-white text-sm sm:text-base text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.password ? 'border-red-300 focus:border-red-500' : 'border-slate-200'}`}
                     {...register('password')}
                   />
                   <button
@@ -124,29 +124,29 @@ const Login = () => {
                     onClick={() => setShowPass(!showPass)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                   >
-                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPass ? <EyeOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />}
                   </button>
                 </div>
                 {errors.password && <span className="text-xs text-red-600">{errors.password.message}</span>}
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer group">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-600 cursor-pointer group">
                   <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500" />
                   <span className="group-hover:text-slate-800 transition-colors">Remember me</span>
                 </label>
-                <Link to="/forgot-password" className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors">
+                <Link to="/forgot-password" className="text-xs sm:text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors">
                   Forgot password?
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full h-11 text-base font-semibold" loading={isSubmitting}>
+              <Button type="submit" className="w-full h-10 sm:h-11 text-sm sm:text-base font-semibold" loading={isSubmitting}>
                 Sign in
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-slate-600">
+            <div className="mt-5 sm:mt-6 text-center">
+              <p className="text-xs sm:text-sm text-slate-600">
                 New patient?{' '}
                 <Link to="/register" className="font-medium text-teal-600 hover:text-teal-700 transition-colors">
                   Create an account
@@ -155,7 +155,7 @@ const Login = () => {
             </div>
           </div>
 
-          <p className="text-center text-xs text-slate-500 mt-6">
+          <p className="text-center text-[10px] sm:text-xs text-slate-500 mt-4 sm:mt-6">
             Protected by enterprise-grade security
           </p>
         </div>

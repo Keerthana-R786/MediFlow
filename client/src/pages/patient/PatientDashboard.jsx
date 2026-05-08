@@ -45,24 +45,24 @@ const PatientDashboard = () => {
 
   return (
     <PageWrapper>
-      <div className="mb-6">
-        <h1 className="text-[20px] font-medium text-[#0F172A]">Welcome, {user?.firstName}</h1>
-        <p className="text-[13px] text-[#94A3B8] mt-0.5">Your appointments</p>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-lg sm:text-[20px] font-medium text-[#0F172A]">Welcome, {user?.firstName}</h1>
+        <p className="text-xs sm:text-[13px] text-[#94A3B8] mt-0.5">Your appointments</p>
       </div>
 
       {loading ? (
         <div className="space-y-3"><SkeletonCard /><SkeletonCard /></div>
       ) : error ? (
-        <div className="bg-[#FEE2E2] border border-[#FCA5A5] rounded-[8px] p-4">
-          <p className="text-[13px] text-[#991B1B]">{error}</p>
+        <div className="bg-[#FEE2E2] border border-[#FCA5A5] rounded-[8px] p-3 sm:p-4">
+          <p className="text-xs sm:text-[13px] text-[#991B1B]">{error}</p>
         </div>
       ) : appointments.length === 0 ? (
         <EmptyState icon={Calendar} title="No appointments" description="You have no appointments yet." />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {upcoming.length > 0 && (
             <div>
-              <p className="text-[12px] font-medium text-[#94A3B8] uppercase tracking-wide mb-3">Upcoming</p>
+              <p className="text-[11px] sm:text-[12px] font-medium text-[#94A3B8] uppercase tracking-wide mb-2 sm:mb-3">Upcoming</p>
               <div className="space-y-3">
                 {upcoming.map((appt) => {
                   const intake = appt.intakeSessionId;
@@ -70,26 +70,26 @@ const PatientDashboard = () => {
                   const doctor = appt.doctorId || {};
                   return (
                     <Card key={appt._id}>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-[14px] font-medium text-[#0F172A]">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex-1">
+                          <p className="text-sm sm:text-[14px] font-medium text-[#0F172A]">
                             Dr. {doctor.firstName} {doctor.lastName}
                           </p>
-                          <p className="text-[13px] text-[#94A3B8] mt-0.5">
+                          <p className="text-xs sm:text-[13px] text-[#94A3B8] mt-0.5">
                             {formatDate(appt.appointmentDate)} · {appt.slot?.startTime}
                           </p>
                           {appt.chiefComplaint && (
-                            <p className="text-[13px] text-[#475569] mt-1">{appt.chiefComplaint}</p>
+                            <p className="text-xs sm:text-[13px] text-[#475569] mt-1 line-clamp-2">{appt.chiefComplaint}</p>
                           )}
                         </div>
-                        <div className="flex items-center gap-3">
-                          <Badge variant="primary" className="capitalize">{appt.status}</Badge>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                          <Badge variant="primary" className="capitalize text-xs">{appt.status}</Badge>
                           {!intakeComplete ? (
-                            <Button size="sm" onClick={() => navigate(`/intake/${appt._id}`)}>
-                              <ClipboardList size={14} /> Complete Check-in
+                            <Button size="sm" onClick={() => navigate(`/intake/${appt._id}`)} className="w-full sm:w-auto text-xs">
+                              <ClipboardList size={12} className="sm:w-[14px] sm:h-[14px]" /> Complete Check-in
                             </Button>
                           ) : (
-                            <Badge variant="success">Check-in done</Badge>
+                            <Badge variant="success" className="text-xs">Check-in done</Badge>
                           )}
                         </div>
                       </div>
@@ -102,22 +102,22 @@ const PatientDashboard = () => {
 
           {past.length > 0 && (
             <div>
-              <p className="text-[12px] font-medium text-[#94A3B8] uppercase tracking-wide mb-3">Past</p>
+              <p className="text-[11px] sm:text-[12px] font-medium text-[#94A3B8] uppercase tracking-wide mb-2 sm:mb-3">Past</p>
               <div className="space-y-3">
                 {past.map((appt) => {
                   const doctor = appt.doctorId || {};
                   return (
                     <Card key={appt._id}>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-[14px] font-medium text-[#0F172A]">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="text-sm sm:text-[14px] font-medium text-[#0F172A]">
                             Dr. {doctor.firstName} {doctor.lastName}
                           </p>
-                          <p className="text-[13px] text-[#94A3B8] mt-0.5">
+                          <p className="text-xs sm:text-[13px] text-[#94A3B8] mt-0.5">
                             {formatDate(appt.appointmentDate)} · {appt.slot?.startTime}
                           </p>
                         </div>
-                        <Badge variant={appt.status === 'completed' ? 'success' : 'default'} className="capitalize">
+                        <Badge variant={appt.status === 'completed' ? 'success' : 'default'} className="capitalize text-xs self-start sm:self-auto">
                           {appt.status}
                         </Badge>
                       </div>

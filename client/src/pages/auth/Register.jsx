@@ -53,92 +53,92 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50">
       <div className="w-full max-w-lg">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/30">
-            <Stethoscope size={24} className="text-white" />
+        <div className="flex items-center justify-center gap-2 mb-6 sm:mb-8">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/30">
+            <Stethoscope size={20} className="sm:w-6 sm:h-6 text-white" />
           </div>
-          <span className="text-2xl font-bold text-slate-800">MediFlow</span>
+          <span className="text-xl sm:text-2xl font-bold text-slate-800">MediFlow</span>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-slate-200/50 backdrop-blur-xl">
+        <div className="bg-white rounded-2xl shadow-2xl p-5 sm:p-8 border border-slate-200/50 backdrop-blur-xl">
           {/* Step indicator */}
-          <div className="flex items-center gap-0 mb-8">
+          <div className="flex items-center gap-0 mb-6 sm:mb-8">
             {steps.map((s, i) => (
               <div key={s} className="flex items-center flex-1">
-                <div className="flex items-center gap-2 flex-1">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${i <= step ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/30' : 'bg-slate-200 text-slate-500'}`}>
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-1">
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${i <= step ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/30' : 'bg-slate-200 text-slate-500'}`}>
                     {i + 1}
                   </div>
-                  <span className={`text-sm ${i === step ? 'text-slate-800 font-semibold' : 'text-slate-400'}`}>{s}</span>
+                  <span className={`text-xs sm:text-sm ${i === step ? 'text-slate-800 font-semibold' : 'text-slate-400'}`}>{s}</span>
                 </div>
-                {i < steps.length - 1 && <div className={`h-0.5 w-full mx-2 ${i < step ? 'bg-gradient-to-r from-teal-500 to-cyan-500' : 'bg-slate-200'}`} />}
+                {i < steps.length - 1 && <div className={`h-0.5 w-full mx-1 sm:mx-2 ${i < step ? 'bg-gradient-to-r from-teal-500 to-cyan-500' : 'bg-slate-200'}`} />}
               </div>
             ))}
           </div>
 
           {step === 2 ? (
-            <div className="text-center py-8 animate-scale-in">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-emerald-100 to-green-100 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20">
-                <CheckCircle2 size={32} className="text-emerald-600" />
+            <div className="text-center py-6 sm:py-8 animate-scale-in">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-emerald-100 to-green-100 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20">
+                <CheckCircle2 size={28} className="sm:w-8 sm:h-8 text-emerald-600" />
               </div>
-              <h2 className="text-xl font-bold text-slate-800 mb-2">Account created successfully!</h2>
-              <p className="text-slate-500">Redirecting to your dashboard...</p>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-800 mb-2">Account created successfully!</h2>
+              <p className="text-sm sm:text-base text-slate-500">Redirecting to your dashboard...</p>
             </div>
           ) : (
             <>
-              <h1 className="text-2xl font-bold text-slate-800 mb-2">Create your account</h1>
-              <p className="text-slate-500 mb-6">Join MediFlow for better healthcare</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">Create your account</h1>
+              <p className="text-sm sm:text-base text-slate-500 mb-5 sm:mb-6">Join MediFlow for better healthcare</p>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
                 {step === 0 && (
                   <>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-slate-700">First name</label>
+                        <label className="text-xs sm:text-sm font-medium text-slate-700">First name</label>
                         <input
-                          className={`h-11 px-4 rounded-xl border-2 bg-white text-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.firstName ? 'border-red-300' : 'border-slate-200'}`}
+                          className={`h-10 sm:h-11 px-3 sm:px-4 rounded-xl border-2 bg-white text-sm sm:text-base text-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.firstName ? 'border-red-300' : 'border-slate-200'}`}
                           {...register('firstName')}
                         />
                         {errors.firstName && <span className="text-xs text-red-600">{errors.firstName.message}</span>}
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-slate-700">Last name</label>
+                        <label className="text-xs sm:text-sm font-medium text-slate-700">Last name</label>
                         <input
-                          className={`h-11 px-4 rounded-xl border-2 bg-white text-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.lastName ? 'border-red-300' : 'border-slate-200'}`}
+                          className={`h-10 sm:h-11 px-3 sm:px-4 rounded-xl border-2 bg-white text-sm sm:text-base text-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.lastName ? 'border-red-300' : 'border-slate-200'}`}
                           {...register('lastName')}
                         />
                         {errors.lastName && <span className="text-xs text-red-600">{errors.lastName.message}</span>}
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-slate-700">Email</label>
+                      <label className="text-xs sm:text-sm font-medium text-slate-700">Email</label>
                       <input
                         type="email"
                         placeholder="you@example.com"
-                        className={`h-11 px-4 rounded-xl border-2 bg-white text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.email ? 'border-red-300' : 'border-slate-200'}`}
+                        className={`h-10 sm:h-11 px-3 sm:px-4 rounded-xl border-2 bg-white text-sm sm:text-base text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.email ? 'border-red-300' : 'border-slate-200'}`}
                         {...register('email')}
                       />
                       {errors.email && <span className="text-xs text-red-600">{errors.email.message}</span>}
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-slate-700">Password</label>
+                      <label className="text-xs sm:text-sm font-medium text-slate-700">Password</label>
                       <input
                         type="password"
                         placeholder="Min. 8 characters"
-                        className={`h-11 px-4 rounded-xl border-2 bg-white text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.password ? 'border-red-300' : 'border-slate-200'}`}
+                        className={`h-10 sm:h-11 px-3 sm:px-4 rounded-xl border-2 bg-white text-sm sm:text-base text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 ${errors.password ? 'border-red-300' : 'border-slate-200'}`}
                         {...register('password')}
                       />
                       {errors.password && <span className="text-xs text-red-600">{errors.password.message}</span>}
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-slate-700">Phone (optional)</label>
+                      <label className="text-xs sm:text-sm font-medium text-slate-700">Phone (optional)</label>
                       <input
                         type="tel"
                         placeholder="+91 98765 43210"
-                        className="h-11 px-4 rounded-xl border-2 border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                        className="h-10 sm:h-11 px-3 sm:px-4 rounded-xl border-2 border-slate-200 bg-white text-sm sm:text-base text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
                         {...register('phone')}
                       />
                     </div>
@@ -147,17 +147,17 @@ const Register = () => {
                 {step === 1 && (
                   <>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-slate-700">Date of birth (optional)</label>
+                      <label className="text-xs sm:text-sm font-medium text-slate-700">Date of birth (optional)</label>
                       <input
                         type="date"
-                        className="h-11 px-4 rounded-xl border-2 border-slate-200 bg-white text-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                        className="h-10 sm:h-11 px-3 sm:px-4 rounded-xl border-2 border-slate-200 bg-white text-sm sm:text-base text-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
                         {...register('dateOfBirth')}
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-slate-700">Gender (optional)</label>
+                      <label className="text-xs sm:text-sm font-medium text-slate-700">Gender (optional)</label>
                       <select
-                        className="h-11 px-4 rounded-xl border-2 border-slate-200 bg-white text-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                        className="h-10 sm:h-11 px-3 sm:px-4 rounded-xl border-2 border-slate-200 bg-white text-sm sm:text-base text-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
                         {...register('gender')}
                       >
                         <option value="">Select gender</option>
@@ -170,11 +170,11 @@ const Register = () => {
                 )}
                 <div className="flex gap-3 pt-2">
                   {step > 0 && (
-                    <Button type="button" variant="secondary" onClick={() => setStep(step - 1)} className="flex-1 h-11">
+                    <Button type="button" variant="secondary" onClick={() => setStep(step - 1)} className="flex-1 h-10 sm:h-11 text-sm sm:text-base">
                       Back
                     </Button>
                   )}
-                  <Button type="submit" loading={isSubmitting} className="flex-1 h-11 font-semibold">
+                  <Button type="submit" loading={isSubmitting} className="flex-1 h-10 sm:h-11 text-sm sm:text-base font-semibold">
                     {step === 1 ? 'Create account' : 'Continue'}
                   </Button>
                 </div>
@@ -183,7 +183,7 @@ const Register = () => {
           )}
 
           {step === 0 && (
-            <p className="text-center text-sm text-slate-600 mt-6">
+            <p className="text-center text-xs sm:text-sm text-slate-600 mt-5 sm:mt-6">
               Already have an account?{' '}
               <Link to="/login" className="font-medium text-teal-600 hover:text-teal-700 transition-colors">Sign in</Link>
             </p>
