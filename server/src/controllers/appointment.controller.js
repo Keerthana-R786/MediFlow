@@ -45,26 +45,31 @@ const createAppointment = asyncHandler(async (req, res) => {
     chiefComplaint, tokenNumber: count + 1,
   });
 
-  // Send confirmation email async — don't block response
-  try {
-    const patient = await Patient.findById(patientId).populate('userId', 'firstName lastName email').lean();
-    const doctor = await User.findById(doctorId).lean();
-    const intakeLink = `${process.env.CLIENT_URL}/intake/${appointment._id}`;
-    console.log('[EMAIL] Generated intake link:', intakeLink);
-    console.log('[EMAIL] Appointment ID:', appointment._id);
-    console.log('[EMAIL] Patient userId populated:', JSON.stringify(patient?.userId));
-    console.log('[EMAIL] Sending to:', patient?.userId?.email);
-    if (patient?.userId?.email) {
-      await mailService.sendAppointmentConfirmation(patient.userId, doctor, appointment, intakeLink);
-      console.log('[EMAIL] Confirmation sent to:', patient.userId.email);
-    } else {
-      console.log('[EMAIL] No email found on patient — skipping');
-    }
-  } catch (e) {
-    console.error('[EMAIL] Send failed:', e.message, e.stack);
-  }
-
+  // Get populated appointment for response
   const populated = await populateAppointment(Appointment.findById(appointment._id)).lean();
+
+  // Send confirmation email async — don't block response
+  // Fire and forget - runs in background
+  setImmediate(async () => {
+    try {
+      const patient = await Patient.findById(patientId).populate('userId', 'firstName lastName email').lean();
+      const doctor = await User.findById(doctorId).lean();
+      const intakeLink = `${process.env.CLIENT_URL}/intake/${appointment._id}`;
+      console.log('[EMAIL] Generated intake link:', intakeLink);
+      console.log('[EMAIL] Appointment ID:', appointment._id);
+      console.log('[EMAIL] Patient userId populated:', JSON.stringify(patient?.userId));
+      console.log('[EMAIL] Sending to:', patient?.userId?.email);
+      if (patient?.userId?.email) {
+        await mailService.sendAppointmentConfirmation(patient.userId, doctor, appointment, intakeLink);
+        console.log('[EMAIL] Confirmation sent to:', patient.userId.email);
+      } else {
+        console.log('[EMAIL] No email found on patient — skipping');
+      }
+    } catch (e) {
+      console.error('[EMAIL] Send failed:', e.message, e.stack);
+    }
+  });
+
   res.status(201).json(new ApiResponse(201, populated, 'Appointment created'));
 });
 

@@ -36,6 +36,12 @@ const baseTemplate = (content) => `
 </html>`;
 
 const sendAppointmentConfirmation = async (patientUser, doctor, appointment, intakeLink) => {
+  console.log('[MAIL] Preparing appointment confirmation email');
+  console.log('[MAIL] To:', patientUser.email);
+  console.log('[MAIL] Patient:', patientUser.firstName, patientUser.lastName);
+  console.log('[MAIL] Doctor:', doctor.firstName, doctor.lastName);
+  console.log('[MAIL] Intake Link:', intakeLink);
+  
   const html = baseTemplate(`
     <h2>Appointment Confirmed</h2>
     <p>Hello ${patientUser.firstName},</p>
@@ -49,7 +55,19 @@ const sendAppointmentConfirmation = async (patientUser, doctor, appointment, int
     <p style="margin-top:16px;color:#94A3B8;font-size:12px;">This link expires after your appointment time.</p>
   `);
 
-  await transporter.sendMail({ from: FROM, to: patientUser.email, subject: 'Appointment Confirmed — MediFlow', html });
+  try {
+    const info = await transporter.sendMail({ 
+      from: FROM, 
+      to: patientUser.email, 
+      subject: 'Appointment Confirmed — MediFlow', 
+      html 
+    });
+    console.log('[MAIL] ✅ Email sent successfully. Message ID:', info.messageId);
+    return info;
+  } catch (error) {
+    console.error('[MAIL] ❌ Failed to send email:', error.message);
+    throw error;
+  }
 };
 
 const sendIntakeReminder = async (patientUser, doctor, appointment, intakeLink) => {
