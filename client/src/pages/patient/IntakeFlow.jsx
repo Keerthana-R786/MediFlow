@@ -4,7 +4,8 @@ import { Send, CheckCircle, AlertTriangle, Stethoscope } from 'lucide-react';
 import axios from 'axios';
 
 // Use plain axios (no auth interceptor) since patients may not be logged in
-const publicApi = axios.create({ baseURL: '/api/v1', withCredentials: true });
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+const publicApi = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
 
 const MAX_MESSAGES = 24;
 
