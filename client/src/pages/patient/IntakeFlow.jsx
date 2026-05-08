@@ -44,23 +44,27 @@ const IntakeFlow = () => {
         const appt = apptRes.data.data;
 
         // If session exists, try to resume it
-        if (appt.intakeSessionId) {
+        if (appt && appt.intakeSessionId) {
           const sid = appt.intakeSessionId._id || appt.intakeSessionId;
-          const sessionRes = await publicApi.get(`/intake/${sid}`);
-          const session = sessionRes.data.data;
+          try {
+            const sessionRes = await publicApi.get(`/intake/${sid}`);
+            const session = sessionRes.data.data;
 
-          if (session.status === 'completed') {
-            setComplete(true);
-            setMessages(session.messages || []);
-            setInitializing(false);
-            return;
-          }
+            if (session.status === 'completed') {
+              setComplete(true);
+              setMessages(session.messages || []);
+              setInitializing(false);
+              return;
+            }
 
-          if (session.messages?.length > 0) {
-            setSessionId(session._id);
-            setMessages(session.messages);
-            setInitializing(false);
-            return;
+            if (session.messages?.length > 0) {
+              setSessionId(session._id);
+              setMessages(session.messages);
+              setInitializing(false);
+              return;
+            }
+          } catch (sessionErr) {
+            console.log('[IntakeFlow] Could not load existing session, starting new one');
           }
         }
 
