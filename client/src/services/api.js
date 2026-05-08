@@ -8,6 +8,7 @@ console.log('🔗 API URL:', API_URL);
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
+  timeout: 30000, // 30 second timeout
 });
 
 // Attach access token

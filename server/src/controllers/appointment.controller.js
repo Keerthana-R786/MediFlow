@@ -28,6 +28,8 @@ const createAppointment = asyncHandler(async (req, res) => {
   const { patientId, doctorId, appointmentDate, slot, type, chiefComplaint } = req.body;
   const clinicId = req.user.clinicId;
 
+  console.log('[APPOINTMENT] Creating appointment for patient:', patientId);
+
   // Auto-assign token number for the day
   const dayStart = new Date(appointmentDate);
   dayStart.setHours(0, 0, 0, 0);
@@ -45,32 +47,48 @@ const createAppointment = asyncHandler(async (req, res) => {
     chiefComplaint, tokenNumber: count + 1,
   });
 
-  // Get populated appointment for response
-  const populated = await populateAppointment(Appointment.findById(appointment._id)).lean();
+  console.log('[APPOINTMENT] Created appointment:', appointment._id);
 
-  // Send confirmation email async — don't block response
-  // Fire and forget - runs in background
-  setImmediate(async () => {
+  // Respond immediately with basic appointment data
+  res.status(201).json(new ApiResponse(201, appointment, 'Appointment created'));
+
+  // Send confirmation email in background - use setTimeout to ensure it runs
+  setTimeout(async () => {
     try {
+      console.log('[EMAIL] ⏰ Background email task started for appointment:', appointment._id);
+      
       const patient = await Patient.findById(patientId).populate('userId', 'firstName lastName email').lean();
-      const doctor = await User.findById(doctorId).lean();
-      const intakeLink = `${process.env.CLIENT_URL}/intake/${appointment._id}`;
-      console.log('[EMAIL] Generated intake link:', intakeLink);
-      console.log('[EMAIL] Appointment ID:', appointment._id);
-      console.log('[EMAIL] Patient userId populated:', JSON.stringify(patient?.userId));
-      console.log('[EMAIL] Sending to:', patient?.userId?.email);
-      if (patient?.userId?.email) {
-        await mailService.sendAppointmentConfirmation(patient.userId, doctor, appointment, intakeLink);
-        console.log('[EMAIL] Confirmation sent to:', patient.userId.email);
-      } else {
-        console.log('[EMAIL] No email found on patient — skipping');
+      console.log('[EMAIL] 👤 Patient found:', patient?._id, 'User:', patient?.userId?._id);
+      
+      const doctor = await User.findById(doctorId).select('firstName lastName email').lean();
+      console.log('[EMAIL] 👨‍⚕️ Doctor found:', doctor?._id, doctor?.email);
+      
+      if (!patient) {
+        console.log('[EMAIL] ❌ Patient not found:', patientId);
+        return;
       }
-    } catch (e) {
-      console.error('[EMAIL] Send failed:', e.message, e.stack);
-    }
-  });
 
-  res.status(201).json(new ApiResponse(201, populated, 'Appointment created'));
+      if (!patient.userId) {
+        console.log('[EMAIL] ❌ Patient userId not populated:', patientId);
+        return;
+      }
+
+      if (!patient.userId.email) {
+        console.log('[EMAIL] ⚠️ No email found for patient user:', patient.userId._id);
+        return;
+      }
+
+      const intakeLink = `${process.env.CLIENT_URL}/intake/${appointment._id}`;
+      console.log('[EMAIL] 📧 Sending to:', patient.userId.email);
+      console.log('[EMAIL] 🔗 Intake link:', intakeLink);
+      
+      await mailService.sendAppointmentConfirmation(patient.userId, doctor, appointment, intakeLink);
+      console.log('[EMAIL] ✅ Email sent successfully to:', patient.userId.email);
+    } catch (e) {
+      console.error('[EMAIL] ❌ Failed to send email:', e.message);
+      console.error('[EMAIL] Stack:', e.stack);
+    }
+  }, 100); // Small delay to ensure response is sent first
 });
 
 const listAppointments = asyncHandler(async (req, res) => {
