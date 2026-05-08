@@ -55,19 +55,33 @@ const sendAppointmentConfirmation = async (patientUser, doctor, appointment, int
     <p style="margin-top:16px;color:#94A3B8;font-size:12px;">This link expires after your appointment time.</p>
   `);
 
-  try {
-    const info = await transporter.sendMail({ 
-      from: FROM, 
-      to: patientUser.email, 
-      subject: 'Appointment Confirmed — MediFlow', 
-      html 
-    });
-    console.log('[MAIL] ✅ Email sent successfully. Message ID:', info.messageId);
-    return info;
-  } catch (error) {
-    console.error('[MAIL] ❌ Failed to send email:', error.message);
-    throw error;
+  // Retry logic for email sending
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      console.log(`[MAIL] Attempt ${attempt}/3 to send email`);
+      const info = await transporter.sendMail({ 
+        from: FROM, 
+        to: patientUser.email, 
+        subject: 'Appointment Confirmed — MediFlow', 
+        html 
+      });
+      console.log('[MAIL] ✅ Email sent successfully. Message ID:', info.messageId);
+      return info;
+    } catch (error) {
+      lastError = error;
+      console.error(`[MAIL] ❌ Attempt ${attempt}/3 failed:`, error.message);
+      if (attempt < 3) {
+        // Wait before retry (exponential backoff)
+        const delay = attempt * 2000; // 2s, 4s
+        console.log(`[MAIL] Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
   }
+  
+  console.error('[MAIL] ❌ All attempts failed. Last error:', lastError.message);
+  throw lastError;
 };
 
 const sendIntakeReminder = async (patientUser, doctor, appointment, intakeLink) => {
