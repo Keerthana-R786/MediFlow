@@ -153,6 +153,10 @@ const sendCriticalAlert = async (doctor, patientUser, appointment) => {
 };
 
 const sendPrescription = async (patientUser, doctor, prescription, appointment) => {
+  console.log('[MAIL] Preparing prescription email');
+  console.log('[MAIL] To:', patientUser.email);
+  console.log('[MAIL] Using:', useBrevo ? 'Brevo API' : 'Gmail SMTP');
+  
   const medicationsHtml = prescription.medications.map(med => `
     <div style="background:#F8FAFC;padding:16px;border-radius:8px;margin:8px 0;border-left:4px solid #14B8A6;">
       <div style="font-weight:600;color:#0F172A;margin-bottom:4px;">${med.name} — ${med.dosage}</div>
@@ -228,12 +232,43 @@ const sendPrescription = async (patientUser, doctor, prescription, appointment) 
     </p>
   `);
 
-  await transporter.sendMail({ 
-    from: FROM, 
-    to: patientUser.email, 
-    subject: `Your Prescription from Dr. ${doctor.lastName} — MediFlow`, 
-    html 
-  });
+  // Use Brevo API if configured
+  if (useBrevo) {
+    try {
+      console.log('[MAIL] Sending prescription via Brevo API...');
+      const result = await sendEmailViaBrevo({
+        to: patientUser.email,
+        subject: `Your Prescription from Dr. ${doctor.lastName} — MediFlow`,
+        htmlContent: html,
+      });
+      console.log('[MAIL] ✅ Prescription email sent successfully via Brevo');
+      return result;
+    } catch (error) {
+      console.error('[MAIL] ❌ Brevo API failed:', error.message);
+      throw error;
+    }
+  }
+
+  // Gmail SMTP fallback
+  if (!isMailerReady()) {
+    console.log('[MAIL] ⚠️ Gmail SMTP not ready - skipping prescription email');
+    return { skipped: true, reason: 'Mailer not ready' };
+  }
+
+  try {
+    console.log('[MAIL] Sending prescription via Gmail SMTP...');
+    const info = await transporter.sendMail({ 
+      from: FROM, 
+      to: patientUser.email, 
+      subject: `Your Prescription from Dr. ${doctor.lastName} — MediFlow`, 
+      html 
+    });
+    console.log('[MAIL] ✅ Prescription email sent successfully via Gmail');
+    return info;
+  } catch (error) {
+    console.error('[MAIL] ❌ Gmail SMTP failed:', error.message);
+    throw error;
+  }
 };
 
 module.exports = { 
